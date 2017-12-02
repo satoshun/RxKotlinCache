@@ -20,11 +20,14 @@ repositories {
 
 dependencies {
   compile "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+  compile 'io.reactivex.rxjava2:rxjava:2.1.7'
+
+  testCompile 'junit:junit:4.12'
 }
 
 compileKotlin {
-  kotlinOptions.jvmTarget = "1.7"
+  kotlinOptions.jvmTarget = "1.6"
 }
 compileTestKotlin {
-  kotlinOptions.jvmTarget = "1.7"
+  kotlinOptions.jvmTarget = "1.6"
 }
