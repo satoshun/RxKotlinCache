@@ -134,4 +134,130 @@ class MaybesTest {
     wrapped(1, 2).test().assertError(error)
     assertThat(counter, `is`(6))
   }
+
+  @Test
+  fun cache3_success() {
+    var counter = 0
+    val original = object : Function3<Int, Int, Int, Maybe<String>> {
+      override fun invoke(p1: Int, p2: Int, p3: Int): Maybe<String> {
+        counter += p1 + p2 + p3
+        return Maybe.just(p1.toString())
+      }
+    }
+    val wrapped = rxCache(original)
+
+    wrapped(1, 2, 4).test().assertValue("1")
+    assertThat(counter, `is`(7))
+    wrapped(2, 4, 7).test().assertValue("2")
+    assertThat(counter, `is`(20))
+
+    wrapped(1, 2, 4).test().assertValue("1")
+    assertThat(counter, `is`(20))
+
+    wrapped.forceInvalidation(1, 2, 4).test().assertValue("1")
+    assertThat(counter, `is`(27))
+  }
+
+  @Test
+  fun cache3_complete() {
+    var counter = 0
+    val original = object : Function3<Int, Int, Int, Maybe<String>> {
+      override fun invoke(p1: Int, p2: Int, p3: Int): Maybe<String> {
+        counter += p1 + p2 + p3
+        return Maybe.empty()
+      }
+    }
+    val wrapped = rxCache(original)
+
+    wrapped(1, 2, 4).test().assertComplete()
+    assertThat(counter, `is`(7))
+    wrapped(2, 3, 7).test().assertComplete()
+    assertThat(counter, `is`(19))
+
+    wrapped(1, 2, 4).test().assertComplete()
+    assertThat(counter, `is`(19))
+
+    wrapped.forceInvalidation(1, 2, 4).test().assertComplete()
+    assertThat(counter, `is`(26))
+  }
+
+  @Test
+  fun cache3_exception() {
+    var counter = 0
+    val original = object : Function3<Int, Int, Int, Maybe<String>> {
+      override fun invoke(p1: Int, p2: Int, p3: Int): Maybe<String> {
+        counter += p1 + p2 + p3
+        return Maybe.error(error)
+      }
+    }
+    val wrapped = rxCache(original)
+
+    wrapped(1, 2, 4).test().assertError(error)
+    assertThat(counter, `is`(7))
+    wrapped(1, 2, 4).test().assertError(error)
+    assertThat(counter, `is`(14))
+  }
+
+  @Test
+  fun cache4_success() {
+    var counter = 0
+    val original = object : Function4<Int, Int, Int, Int, Maybe<String>> {
+      override fun invoke(p1: Int, p2: Int, p3: Int, p4: Int): Maybe<String> {
+        counter += p1 + p2 + p3 + p4
+        return Maybe.just(p1.toString())
+      }
+    }
+    val wrapped = rxCache(original)
+
+    wrapped(1, 2, 4, 7).test().assertValue("1")
+    assertThat(counter, `is`(14))
+    wrapped(2, 4, 7, 11).test().assertValue("2")
+    assertThat(counter, `is`(38))
+
+    wrapped(1, 2, 4, 7).test().assertValue("1")
+    assertThat(counter, `is`(38))
+
+    wrapped.forceInvalidation(1, 2, 4, 7).test().assertValue("1")
+    assertThat(counter, `is`(52))
+  }
+
+  @Test
+  fun cache4_complete() {
+    var counter = 0
+    val original = object : Function4<Int, Int, Int, Int, Maybe<String>> {
+      override fun invoke(p1: Int, p2: Int, p3: Int, p4: Int): Maybe<String> {
+        counter += p1 + p2 + p3 + p4
+        return Maybe.empty()
+      }
+    }
+    val wrapped = rxCache(original)
+
+    wrapped(1, 2, 4, 7).test().assertComplete()
+    assertThat(counter, `is`(14))
+    wrapped(2, 3, 7, 11).test().assertComplete()
+    assertThat(counter, `is`(37))
+
+    wrapped(1, 2, 4, 7).test().assertComplete()
+    assertThat(counter, `is`(37))
+
+    wrapped.forceInvalidation(1, 2, 4, 7).test().assertComplete()
+    assertThat(counter, `is`(51))
+  }
+
+  @Test
+  fun cache4_exception() {
+    var counter = 0
+    val original = object : Function4<Int, Int, Int, Int, Maybe<String>> {
+      override fun invoke(p1: Int, p2: Int, p3: Int, p4: Int): Maybe<String> {
+        counter += p1 + p2 + p3 + p4
+        return Maybe.error(error)
+      }
+    }
+    val wrapped = rxCache(original)
+
+    wrapped(1, 2, 4, 7).test().assertError(error)
+    assertThat(counter, `is`(14))
+    wrapped(1, 2, 4, 7).test().assertError(error)
+    assertThat(counter, `is`(28))
+  }
 }

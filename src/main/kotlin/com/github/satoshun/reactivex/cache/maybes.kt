@@ -45,6 +45,50 @@ class MaybeCache2<in P1, in P2, R : Any>(
   }
 }
 
+fun <P1, P2, P3, R : Any> rxCache(original: Function3<P1, P2, P3, Maybe<R>>): MaybeCache3<P1, P2, P3, R> {
+  return MaybeCache3(original)
+}
+
+class MaybeCache3<in P1, in P2, in P3, R : Any>(
+    private val original: Function3<P1, P2, P3, Maybe<R>>
+) : Function3<P1, P2, P3, Maybe<R>> {
+  private val cache = CacheMap<CacheKey3<P1, P2, P3>, Either<R, MaybeComplete>>()
+
+  override operator fun invoke(p1: P1, p2: P2, p3: P3): Maybe<R> {
+    val value = cache[CacheKey3(p1, p2, p3)]
+    return value?.toMaybe() ?: forceInvalidation(p1, p2, p3)
+  }
+
+  fun forceInvalidation(p1: P1, p2: P2, p3: P3): Maybe<R> {
+    val key = CacheKey3(p1, p2, p3)
+    return original(p1, p2, p3)
+        .doOnSuccess { cache[key] = Either.left(it) }
+        .doOnComplete { cache[key] = Either.right(MaybeComplete) }
+  }
+}
+
+fun <P1, P2, P3, P4, R : Any> rxCache(original: Function4<P1, P2, P3, P4, Maybe<R>>): MaybeCache4<P1, P2, P3, P4, R> {
+  return MaybeCache4(original)
+}
+
+class MaybeCache4<in P1, in P2, in P3, in P4, R : Any>(
+    private val original: Function4<P1, P2, P3, P4, Maybe<R>>
+) : Function4<P1, P2, P3, P4, Maybe<R>> {
+  private val cache = CacheMap<CacheKey4<P1, P2, P3, P4>, Either<R, MaybeComplete>>()
+
+  override operator fun invoke(p1: P1, p2: P2, p3: P3, p4: P4): Maybe<R> {
+    val value = cache[CacheKey4(p1, p2, p3, p4)]
+    return value?.toMaybe() ?: forceInvalidation(p1, p2, p3, p4)
+  }
+
+  fun forceInvalidation(p1: P1, p2: P2, p3: P3, p4: P4): Maybe<R> {
+    val key = CacheKey4(p1, p2, p3, p4)
+    return original(p1, p2, p3, p4)
+        .doOnSuccess { cache[key] = Either.left(it) }
+        .doOnComplete { cache[key] = Either.right(MaybeComplete) }
+  }
+}
+
 private fun <R : Any> Either<R, MaybeComplete>.toMaybe(): Maybe<R> {
   return if (left != null) Maybe.just(left)
   else Maybe.empty()
