@@ -2,7 +2,7 @@ package com.github.satoshun.reactivex.cache
 
 import io.reactivex.Single
 
-fun <P1, R> RxCache(original: Function1<P1, Single<R>>): SingleCache1<P1, R> {
+fun <P1, R> rxCache(original: Function1<P1, Single<R>>): SingleCache1<P1, R> {
   return SingleCache1(original)
 }
 
@@ -22,3 +22,24 @@ class SingleCache1<in P1, R>(
   }
 }
 
+fun <P1, P2, R> rxCache(original: Function2<P1, P2, Single<R>>): SingleCache2<P1, P2, R> {
+  return SingleCache2(original)
+}
+
+class SingleCache2<in P1, in P2, R>(
+    private val original: Function2<P1, P2, Single<R>>
+) : Function2<P1, P2, Single<R>> {
+  private val cache = CacheMap<CacheKey2<P1, P2>, R>()
+
+  override operator fun invoke(p1: P1, p2: P2): Single<R> {
+    val key = CacheKey2(p1, p2)
+    val value = cache[key]
+    return if (value != null) Single.just(value)
+    else forceInvalidation(p1, p2)
+  }
+
+  fun forceInvalidation(p1: P1, p2: P2): Single<R> {
+    val key = CacheKey2(p1, p2)
+    return original(p1, p2).doOnSuccess { cache[key] = it }
+  }
+}
