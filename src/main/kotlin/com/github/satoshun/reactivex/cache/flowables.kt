@@ -69,3 +69,26 @@ class FlowableCache3<in P1, in P2, in P3, R>(
         .doOnComplete { cache[key] = cacheList }
   }
 }
+
+fun <P1, P2, P3, P4, R> rxCache(original: Function4<P1, P2, P3, P4, Flowable<R>>): FlowableCache4<P1, P2, P3, P4, R> {
+  return FlowableCache4(original)
+}
+
+class FlowableCache4<in P1, in P2, in P3, in P4, R>(
+    private val original: Function4<P1, P2, P3, P4, Flowable<R>>
+) : Function4<P1, P2, P3, P4, Flowable<R>> {
+  private val cache = CacheMap<CacheKey4<P1, P2, P3, P4>, CacheValueList<R>>()
+
+  override operator fun invoke(p1: P1, p2: P2, p3: P3, p4: P4): Flowable<R> {
+    val value = cache[CacheKey4(p1, p2, p3, p4)]
+    return if (value != null) Flowable.fromIterable(value)
+    else forceInvalidation(p1, p2, p3, p4)
+  }
+
+  fun forceInvalidation(p1: P1, p2: P2, p3: P3, p4: P4): Flowable<R> {
+    val key = CacheKey4(p1, p2, p3, p4)
+    val cacheList = CacheValueList<R>()
+    return original(p1, p2, p3, p4).doOnNext { cacheList += it }
+        .doOnComplete { cache[key] = cacheList }
+  }
+}
