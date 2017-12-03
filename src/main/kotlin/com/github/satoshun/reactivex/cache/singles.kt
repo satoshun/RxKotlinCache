@@ -43,3 +43,25 @@ class SingleCache2<in P1, in P2, R>(
     return original(p1, p2).doOnSuccess { cache[key] = it }
   }
 }
+
+fun <P1, P2, P3, R> rxCache(original: Function3<P1, P2, P3, Single<R>>): SingleCache3<P1, P2, P3, R> {
+  return SingleCache3(original)
+}
+
+class SingleCache3<in P1, in P2, in P3, R>(
+    private val original: Function3<P1, P2, P3, Single<R>>
+) : Function3<P1, P2, P3, Single<R>> {
+  private val cache = CacheMap<CacheKey3<P1, P2, P3>, R>()
+
+  override operator fun invoke(p1: P1, p2: P2, p3: P3): Single<R> {
+    val key = CacheKey3(p1, p2, p3)
+    val value = cache[key]
+    return if (value != null) Single.just(value)
+    else forceInvalidation(p1, p2, p3)
+  }
+
+  fun forceInvalidation(p1: P1, p2: P2, p3: P3): Single<R> {
+    val key = CacheKey3(p1, p2, p3)
+    return original(p1, p2, p3).doOnSuccess { cache[key] = it }
+  }
+}

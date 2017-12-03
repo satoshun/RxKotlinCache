@@ -85,4 +85,44 @@ class SinglesTest {
     wrapped(1, 2).subscribe({}, {})
     assertThat(counter, `is`(6))
   }
+
+  @Test
+  fun cache3() {
+    var counter = 0
+    val original = object : Function3<Int, Int, Int, Single<String>> {
+      override fun invoke(p1: Int, p2: Int, p3: Int): Single<String> {
+        counter += p1 + p2 + p3
+        return Single.just(p1.toString())
+      }
+    }
+    val wrapped = rxCache(original)
+
+    wrapped(1, 2, 4).subscribe()
+    assertThat(counter, `is`(7))
+    wrapped(2, 4, 7).subscribe()
+    assertThat(counter, `is`(20))
+
+    wrapped(1, 2, 4).subscribe()
+    assertThat(counter, `is`(20))
+
+    wrapped.forceInvalidation(1, 2, 4).subscribe()
+    assertThat(counter, `is`(27))
+  }
+
+  @Test
+  fun cache3_exception() {
+    var counter = 0
+    val original = object : Function3<Int, Int, Int, Single<String>> {
+      override fun invoke(p1: Int, p2: Int, p3: Int): Single<String> {
+        counter += p1 + p2 + p3
+        return Single.error(Exception())
+      }
+    }
+    val wrapped = rxCache(original)
+
+    wrapped(1, 2, 4).subscribe({}, {})
+    assertThat(counter, `is`(7))
+    wrapped(1, 2, 4).subscribe({}, {})
+    assertThat(counter, `is`(14))
+  }
 }
