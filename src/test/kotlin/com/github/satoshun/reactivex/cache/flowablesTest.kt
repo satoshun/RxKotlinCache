@@ -10,6 +10,44 @@ class FlowablesTest {
   private val error = Exception("error")
 
   @Test
+  fun cache0() {
+    var counter = 0
+    val original = object : Function0<Flowable<String>> {
+      override fun invoke(): Flowable<String> {
+        counter += 1
+        return Flowable.just("1", "2")
+      }
+    }
+    val wrapped = rxCache(original)
+
+    wrapped().test().assertValues("1", "2")
+    assertThat(counter, `is`(1))
+
+    wrapped().test().assertValues("1", "2")
+    assertThat(counter, `is`(1))
+
+    wrapped.forceInvalidation().test().assertValues("1", "2")
+    assertThat(counter, `is`(2))
+  }
+
+  @Test
+  fun cache0_exception() {
+    var counter = 0
+    val original = object : Function0<Flowable<String>> {
+      override fun invoke(): Flowable<String> {
+        counter += 1
+        return Flowable.error(error)
+      }
+    }
+    val wrapped = rxCache(original)
+
+    wrapped().test().assertError(error)
+    assertThat(counter, `is`(1))
+    wrapped().test().assertError(error)
+    assertThat(counter, `is`(2))
+  }
+
+  @Test
   fun cache1() {
     var counter = 0
     val original = object : Function1<Int, Flowable<String>> {

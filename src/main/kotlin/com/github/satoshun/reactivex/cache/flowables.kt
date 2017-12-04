@@ -2,6 +2,29 @@ package com.github.satoshun.reactivex.cache
 
 import io.reactivex.Flowable
 
+fun <R : Any> rxCache(original: Function0<Flowable<R>>): FlowableCache0<R> {
+  return FlowableCache0(original)
+}
+
+class FlowableCache0<R : Any>(
+    private val original: Function0<Flowable<R>>
+) : Function0<Flowable<R>> {
+  private var cache: CacheValueList<R>? = null
+
+  override operator fun invoke(): Flowable<R> {
+    val value = cache
+    return if (value != null) Flowable.fromIterable(value)
+    else forceInvalidation()
+  }
+
+  fun forceInvalidation(): Flowable<R> {
+    val cacheList = CacheValueList<R>()
+    return original()
+        .doOnNext { cacheList += it }
+        .doOnComplete { cache = cacheList }
+  }
+}
+
 fun <P1, R : Any> rxCache(original: Function1<P1, Flowable<R>>): FlowableCache1<P1, R> {
   return FlowableCache1(original)
 }
