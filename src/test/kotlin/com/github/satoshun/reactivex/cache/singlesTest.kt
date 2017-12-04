@@ -9,6 +9,44 @@ class SinglesTest {
   private val error = Exception("error")
 
   @Test
+  fun cache0() {
+    var counter = 0
+    val original = object : Function0<Single<String>> {
+      override fun invoke(): Single<String> {
+        counter += 1
+        return Single.just("1")
+      }
+    }
+    val wrapped = rxCache(original)
+
+    wrapped().test().assertValue("1")
+    assertThat(counter, `is`(1))
+
+    wrapped().test().assertValue("1")
+    assertThat(counter, `is`(1))
+
+    wrapped.forceInvalidation().test().assertValue("1")
+    assertThat(counter, `is`(2))
+  }
+
+  @Test
+  fun cache0_exception() {
+    var counter = 0
+    val original = object : Function0<Single<String>> {
+      override fun invoke(): Single<String> {
+        counter += 1
+        return Single.error(error)
+      }
+    }
+    val wrapped = rxCache(original)
+
+    wrapped().test().assertError(error)
+    assertThat(counter, `is`(1))
+    wrapped().test().assertError(error)
+    assertThat(counter, `is`(2))
+  }
+
+  @Test
   fun cache1() {
     var counter = 0
     val original = object : Function1<Int, Single<String>> {

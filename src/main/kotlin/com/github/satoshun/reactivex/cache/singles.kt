@@ -2,6 +2,26 @@ package com.github.satoshun.reactivex.cache
 
 import io.reactivex.Single
 
+fun <R : Any> rxCache(original: Function0<Single<R>>): SingleCache0<R> {
+  return SingleCache0(original)
+}
+
+class SingleCache0<R : Any>(
+    private val original: Function0<Single<R>>
+) : Function0<Single<R>> {
+  private var cache: R? = null
+
+  override operator fun invoke(): Single<R> {
+    val value = cache
+    return if (value != null) Single.just(value)
+    else forceInvalidation()
+  }
+
+  fun forceInvalidation(): Single<R> {
+    return original().doOnSuccess { cache = it }
+  }
+}
+
 fun <P1, R : Any> rxCache(original: Function1<P1, Single<R>>): SingleCache1<P1, R> {
   return SingleCache1(original)
 }
