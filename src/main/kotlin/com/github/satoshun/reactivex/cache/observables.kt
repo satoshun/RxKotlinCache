@@ -1,6 +1,30 @@
 package com.github.satoshun.reactivex.cache
 
+import io.reactivex.Flowable
 import io.reactivex.Observable
+
+fun <R : Any> rxCache(original: Function0<Observable<R>>): ObservableCache0<R> {
+  return ObservableCache0(original)
+}
+
+class ObservableCache0<R : Any>(
+    private val original: Function0<Observable<R>>
+) : Function0<Observable<R>> {
+  private var cache: CacheValueList<R>? = null
+
+  override operator fun invoke(): Observable<R> {
+    val value = cache
+    return if (value != null) Observable.fromIterable(value)
+    else forceInvalidation()
+  }
+
+  fun forceInvalidation(): Observable<R> {
+    val cacheList = CacheValueList<R>()
+    return original()
+        .doOnNext { cacheList += it }
+        .doOnComplete { cache = cacheList }
+  }
+}
 
 fun <P1, R : Any> rxCache(original: Function1<P1, Observable<R>>): ObservableCache1<P1, R> {
   return ObservableCache1(original)
