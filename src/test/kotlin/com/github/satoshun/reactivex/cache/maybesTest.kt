@@ -10,6 +10,65 @@ class MaybesTest {
   private val error = Exception("error")
 
   @Test
+  fun cache0_success() {
+    var counter = 0
+    val original = object : Function0<Maybe<String>> {
+      override fun invoke(): Maybe<String> {
+        counter += 1
+        return Maybe.just("1")
+      }
+    }
+    val wrapped = rxCache(original)
+
+    wrapped().test().assertValue("1")
+    assertThat(counter, `is`(1))
+
+    wrapped().test().assertValue("1")
+    assertThat(counter, `is`(1))
+
+    wrapped.forceInvalidation().test().assertValue("1")
+    assertThat(counter, `is`(2))
+  }
+
+  @Test
+  fun cache0_complete() {
+    var counter = 0
+    val original = object : Function0<Maybe<String>> {
+      override fun invoke(): Maybe<String> {
+        counter += 1
+        return Maybe.empty()
+      }
+    }
+    val wrapped = rxCache(original)
+
+    wrapped().test().assertComplete()
+    assertThat(counter, `is`(1))
+
+    wrapped().test().assertComplete()
+    assertThat(counter, `is`(1))
+
+    wrapped.forceInvalidation().test().assertComplete()
+    assertThat(counter, `is`(2))
+  }
+
+  @Test
+  fun cache0_exception() {
+    var counter = 0
+    val original = object : Function0<Maybe<String>> {
+      override fun invoke(): Maybe<String> {
+        counter += 1
+        return Maybe.error(error)
+      }
+    }
+    val wrapped = rxCache(original)
+
+    wrapped().test().assertError(error)
+    assertThat(counter, `is`(1))
+    wrapped().test().assertError(error)
+    assertThat(counter, `is`(2))
+  }
+
+  @Test
   fun cache1_success() {
     var counter = 0
     val original = object : Function1<Int, Maybe<String>> {

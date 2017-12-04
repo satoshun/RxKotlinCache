@@ -2,6 +2,27 @@ package com.github.satoshun.reactivex.cache
 
 import io.reactivex.Maybe
 
+fun <R : Any> rxCache(original: Function0<Maybe<R>>): MaybeCache0<R> {
+  return MaybeCache0(original)
+}
+
+class MaybeCache0<R : Any>(
+    private val original: Function0<Maybe<R>>
+) : Function0<Maybe<R>> {
+  private var cache: Either<R, MaybeComplete>? = null
+
+  override operator fun invoke(): Maybe<R> {
+    val value = cache
+    return value?.toMaybe() ?: forceInvalidation()
+  }
+
+  fun forceInvalidation(): Maybe<R> {
+    return original()
+        .doOnSuccess { cache = Either.left(it) }
+        .doOnComplete { cache = Either.right(MaybeComplete) }
+  }
+}
+
 fun <P1, R : Any> rxCache(original: Function1<P1, Maybe<R>>): MaybeCache1<P1, R> {
   return MaybeCache1(original)
 }
