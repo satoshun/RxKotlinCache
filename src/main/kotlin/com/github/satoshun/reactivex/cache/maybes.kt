@@ -33,14 +33,14 @@ class MaybeCache1<in P1, R : Any>(
   private val cache = CacheMap<P1, Either<R, MaybeComplete>>()
 
   override operator fun invoke(p1: P1): Maybe<R> {
-    val value = cache[p1]
+    val value = if (p1 == null) null else cache[p1]
     return value?.toMaybe() ?: forceInvalidation(p1)
   }
 
   fun forceInvalidation(p1: P1): Maybe<R> {
     return original(p1)
-        .doOnSuccess { cache[p1] = Either.left(it) }
-        .doOnComplete { cache[p1] = Either.right(MaybeComplete) }
+        .doOnSuccess { if (p1 != null) cache[p1] = Either.left(it) }
+        .doOnComplete { if (p1 != null) cache[p1] = Either.right(MaybeComplete) }
   }
 }
 

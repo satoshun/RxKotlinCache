@@ -36,7 +36,7 @@ class ObservableCache1<in P1, R : Any>(
   private val cache = CacheMap<P1, CacheValueList<R>>()
 
   override operator fun invoke(p1: P1): Observable<R> {
-    val value = cache[p1]
+    val value = if (p1 == null) null else cache[p1]
     return if (value != null) Observable.fromIterable(value)
     else forceInvalidation(p1)
   }
@@ -44,7 +44,7 @@ class ObservableCache1<in P1, R : Any>(
   fun forceInvalidation(p1: P1): Observable<R> {
     val cacheList = CacheValueList<R>()
     return original(p1).doOnNext { cacheList += it }
-        .doOnComplete { cache[p1] = cacheList }
+        .doOnComplete { if (p1 != null) cache[p1] = cacheList }
   }
 }
 

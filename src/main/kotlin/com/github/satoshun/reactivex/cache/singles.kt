@@ -32,13 +32,13 @@ class SingleCache1<in P1, R : Any>(
   private val cache = CacheMap<P1, R>()
 
   override operator fun invoke(p1: P1): Single<R> {
-    val value = cache[p1]
+    val value = if (p1 == null) null else cache[p1]
     return if (value != null) Single.just(value)
     else forceInvalidation(p1)
   }
 
   fun forceInvalidation(p1: P1): Single<R> {
-    return original(p1).doOnSuccess { cache[p1] = it }
+    return original(p1).doOnSuccess { if (p1 != null) cache[p1] = it }
   }
 }
 

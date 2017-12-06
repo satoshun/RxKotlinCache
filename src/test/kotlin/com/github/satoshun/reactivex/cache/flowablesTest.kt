@@ -89,6 +89,21 @@ class FlowablesTest {
   }
 
   @Test
+  fun cache1_null() {
+    var counter = 0
+    val original = object : Function1<Int?, Flowable<String>> {
+      override fun invoke(p1: Int?): Flowable<String> {
+        counter += 1
+        return Flowable.just("1", "2")
+      }
+    }
+    val wrapped = rxCache(original)
+
+    wrapped(null).test().assertValues("1", "2")
+    assertThat(counter, `is`(1))
+  }
+
+  @Test
   fun cache2() {
     var counter = 0
     val original = object : Function2<Int, Int, Flowable<String>> {

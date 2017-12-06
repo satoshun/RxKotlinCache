@@ -87,6 +87,21 @@ class SinglesTest {
   }
 
   @Test
+  fun cache1_null() {
+    var counter = 0
+    val original = object : Function1<Int?, Single<String>> {
+      override fun invoke(p1: Int?): Single<String> {
+        counter += 1
+        return Single.just("1")
+      }
+    }
+    val wrapped = rxCache(original)
+
+    wrapped(null).test().assertValue("1")
+    assertThat(counter, `is`(1))
+  }
+
+  @Test
   fun cache2() {
     var counter = 0
     val original = object : Function2<Int, Int, Single<String>> {

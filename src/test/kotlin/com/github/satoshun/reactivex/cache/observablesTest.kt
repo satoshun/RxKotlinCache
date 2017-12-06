@@ -45,6 +45,7 @@ class ObservablesTest {
     wrapped().test().assertError(error)
     assertThat(counter, `is`(2))
   }
+
   @Test
   fun cache1() {
     var counter = 0
@@ -84,6 +85,21 @@ class ObservablesTest {
     assertThat(counter, `is`(1))
     wrapped(1).test().assertError(error)
     assertThat(counter, `is`(2))
+  }
+
+  @Test
+  fun cache1_null() {
+    var counter = 0
+    val original = object : Function1<Int?, Observable<String>> {
+      override fun invoke(p1: Int?): Observable<String> {
+        counter += 1
+        return Observable.just("1", "2")
+      }
+    }
+    val wrapped = rxCache(original)
+
+    wrapped(null).test().assertValues("1", "2")
+    assertThat(counter, `is`(1))
   }
 
   @Test
