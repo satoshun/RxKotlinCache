@@ -2,12 +2,12 @@ package com.github.satoshun.reactivex.cache
 
 import io.reactivex.Single
 
-fun <R : Any> rxCache(original: Function0<Single<R>>): SingleCache0<R> {
+fun <R : Any> rxCache(original: () -> Single<R>): SingleCache0<R> {
   return SingleCache0(original)
 }
 
 class SingleCache0<R : Any>(
-    private val original: Function0<Single<R>>
+    private val original: () -> Single<R>
 ) : Function0<Single<R>> {
   private var cache: R? = null
 
@@ -22,12 +22,12 @@ class SingleCache0<R : Any>(
   }
 }
 
-fun <P1, R : Any> rxCache(original: Function1<P1, Single<R>>): SingleCache1<P1, R> {
+fun <P1, R : Any> rxCache(original: (P1) -> Single<R>): SingleCache1<P1, R> {
   return SingleCache1(original)
 }
 
 class SingleCache1<in P1, R : Any>(
-    private val original: Function1<P1, Single<R>>
+    private val original: (P1) -> Single<R>
 ) : Function1<P1, Single<R>> {
   private val cache = CacheMap<P1, R>()
 
@@ -42,12 +42,12 @@ class SingleCache1<in P1, R : Any>(
   }
 }
 
-fun <P1, P2, R : Any> rxCache(original: Function2<P1, P2, Single<R>>): SingleCache2<P1, P2, R> {
+fun <P1, P2, R : Any> rxCache(original: (P1, P2) -> Single<R>): SingleCache2<P1, P2, R> {
   return SingleCache2(original)
 }
 
 class SingleCache2<in P1, in P2, R : Any>(
-    private val original: Function2<P1, P2, Single<R>>
+    private val original: (P1, P2) -> Single<R>
 ) : Function2<P1, P2, Single<R>> {
   private val cache = CacheMap<CacheKey2<P1, P2>, R>()
 
@@ -64,12 +64,12 @@ class SingleCache2<in P1, in P2, R : Any>(
   }
 }
 
-fun <P1, P2, P3, R : Any> rxCache(original: Function3<P1, P2, P3, Single<R>>): SingleCache3<P1, P2, P3, R> {
+fun <P1, P2, P3, R : Any> rxCache(original: (P1, P2, P3) -> Single<R>): SingleCache3<P1, P2, P3, R> {
   return SingleCache3(original)
 }
 
 class SingleCache3<in P1, in P2, in P3, R : Any>(
-    private val original: Function3<P1, P2, P3, Single<R>>
+    private val original: (P1, P2, P3) -> Single<R>
 ) : Function3<P1, P2, P3, Single<R>> {
   private val cache = CacheMap<CacheKey3<P1, P2, P3>, R>()
 
@@ -86,12 +86,12 @@ class SingleCache3<in P1, in P2, in P3, R : Any>(
   }
 }
 
-fun <P1, P2, P3, P4, R : Any> rxCache(original: Function4<P1, P2, P3, P4, Single<R>>): SingleCache4<P1, P2, P3, P4, R> {
+fun <P1, P2, P3, P4, R : Any> rxCache(original: (P1, P2, P3, P4) -> Single<R>): SingleCache4<P1, P2, P3, P4, R> {
   return SingleCache4(original)
 }
 
 class SingleCache4<in P1, in P2, in P3, in P4, R : Any>(
-    private val original: Function4<P1, P2, P3, P4, Single<R>>
+    private val original: (P1, P2, P3, P4) -> Single<R>
 ) : Function4<P1, P2, P3, P4, Single<R>> {
   private val cache = CacheMap<CacheKey4<P1, P2, P3, P4>, R>()
 
