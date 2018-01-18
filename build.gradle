@@ -9,10 +9,11 @@ buildscript {
   }
 }
 
-group 'com.github.satoshun.reactivex.cache'
-version '0.1'
+apply plugin: 'java-library'
+apply plugin: 'org.jetbrains.kotlin.platform.jvm'
 
-apply plugin: 'kotlin'
+sourceCompatibility = JavaVersion.VERSION_1_6
+targetCompatibility = JavaVersion.VERSION_1_6
 
 repositories {
   mavenCentral()
@@ -25,9 +26,7 @@ dependencies {
   testCompile 'junit:junit:4.12'
 }
 
-compileKotlin {
-  kotlinOptions.jvmTarget = "1.6"
-}
-compileTestKotlin {
-  kotlinOptions.jvmTarget = "1.6"
+compileTestJava {
+  sourceCompatibility = JavaVersion.VERSION_1_8
+  targetCompatibility = JavaVersion.VERSION_1_8
 }
