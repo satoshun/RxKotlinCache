@@ -17,13 +17,14 @@ targetCompatibility = JavaVersion.VERSION_1_6
 
 repositories {
   mavenCentral()
+  maven { url 'https://jitpack.io' }
 }
 
 dependencies {
-  compile "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-  compile 'io.reactivex.rxjava2:rxjava:2.1.8'
+  implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+  implementation 'io.reactivex.rxjava2:rxjava:2.1.8'
 
-  testCompile 'junit:junit:4.12'
+  testImplementation 'junit:junit:4.12'
 }
 
 compileTestJava {
