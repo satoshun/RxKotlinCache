@@ -2,14 +2,17 @@ buildscript {
   ext.kotlin_version = '1.2.41'
 
   repositories {
+    jcenter()
     mavenCentral()
   }
   dependencies {
     classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    classpath "org.jetbrains.dokka:dokka-gradle-plugin:0.9.16"
   }
 }
 
 apply plugin: 'java-library'
+apply plugin: 'org.jetbrains.dokka'
 apply plugin: 'org.jetbrains.kotlin.platform.jvm'
 
 sourceCompatibility = JavaVersion.VERSION_1_6
@@ -30,3 +33,5 @@ compileTestJava {
   sourceCompatibility = JavaVersion.VERSION_1_8
   targetCompatibility = JavaVersion.VERSION_1_8
 }
+
+apply from: rootProject.file('gradle/gradle-mvn-push-kotlin.gradle')
