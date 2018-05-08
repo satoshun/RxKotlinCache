@@ -1,3 +1,5 @@
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.satoshun.RxKotlinCache/rxkotlincache/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.satoshun.RxKotlinCache/rxkotlincache)
+
 # RxKotlinCache
 
 It's a simple cache for [RxJava2](https://github.com/ReactiveX/RxJava) and Kotlin.
